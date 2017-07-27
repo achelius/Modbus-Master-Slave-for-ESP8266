@@ -400,7 +400,12 @@ void Modbus::begin(long u32speed,uint8_t u8config)
         break;
     }
 
+#ifdef ESP8266
+    port->begin(u32speed, (SerialConfig)u8config);
+#else
     port->begin(u32speed, u8config);
+#endif
+
     if (u8txenpin > 1)   // pin 0 & pin 1 are reserved for RX/TX
     {
         // return RS485 transceiver to transmit mode
@@ -921,7 +926,9 @@ void Modbus::sendTxBuffer()
 #endif
         case 0:
         default:
+#ifndef ESP8266
             UCSR0A=UCSR0A |(1 << TXC0);
+#endif
             break;
         }
         digitalWrite( u8txenpin, HIGH );
@@ -957,7 +964,9 @@ void Modbus::sendTxBuffer()
 #endif
         case 0:
         default:
+#ifndef ESP8266
             while (!(UCSR0A & (1 << TXC0)));
+#endif
             break;
         }
 
